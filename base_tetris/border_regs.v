@@ -10,6 +10,8 @@ module border_regs(// input
     parameter integer MEM_WIDTH = 10;
     parameter integer MEM_HEIGHT = 20;
     parameter integer WIDTH = 8;
+    //////////////////
+    localparam integer REAL_BOT = 6;
     // input
     input [MEM_WIDTH * WIDTH - 1:0] new_border;
     input [4 * WIDTH - 1:0] new_rho_x, new_rho_y;
@@ -25,43 +27,35 @@ module border_regs(// input
 wire T_fig, Q_fig, I_fig;
 reg [4 * WIDTH - 1:0] rst_x_value, rst_y_value;
 
-assign T_fig = (figure == 8'b00000000);
+assign I_fig = (figure == 8'b00000000);
 assign Q_fig = (figure == 8'b00000001);
-assign I_fig = (figure == 8'b00000010);
 
 always @(*) begin
-    if (T_fig) begin
-        rst_x_value[4 * WIDTH - 1: 3 * WIDTH] = 0;
+    if (Q_fig) begin
+        rst_x_value[4 * WIDTH - 1: 3 * WIDTH] = 4;
         rst_y_value[4 * WIDTH - 1: 3 * WIDTH] = 0;
-        rst_x_value[3 * WIDTH - 1: 2 * WIDTH] = 1;
-        rst_y_value[3 * WIDTH - 1: 2 * WIDTH] = 0;
-        rst_x_value[2 * WIDTH - 1: 1 * WIDTH] = 2;
+        rst_x_value[3 * WIDTH - 1: 2 * WIDTH] = 4;
+        rst_y_value[3 * WIDTH - 1: 2 * WIDTH] = 1;
+        rst_x_value[2 * WIDTH - 1: 1 * WIDTH] = 5;
         rst_y_value[2 * WIDTH - 1: 1 * WIDTH] = 0;
-        rst_x_value[1 * WIDTH - 1: 0 * WIDTH] = 1;
+        rst_x_value[1 * WIDTH - 1: 0 * WIDTH] = 5;
         rst_y_value[1 * WIDTH - 1: 0 * WIDTH] = 1;
     end
-    else if (Q_fig) begin
-        rst_x_value[4 * WIDTH - 1: 3 * WIDTH] = 0;
-        rst_y_value[4 * WIDTH - 1: 3 * WIDTH] = 0;
-        rst_x_value[3 * WIDTH - 1: 2 * WIDTH] = 1;
-        rst_y_value[3 * WIDTH - 1: 2 * WIDTH] = 0;
-        rst_x_value[2 * WIDTH - 1: 1 * WIDTH] = 0;
-        rst_y_value[2 * WIDTH - 1: 1 * WIDTH] = 1;
-        rst_x_value[1 * WIDTH - 1: 0 * WIDTH] = 0;
-        rst_y_value[1 * WIDTH - 1: 0 * WIDTH] = 2;
-    end
     else if (I_fig) begin
-        rst_x_value = 0;
-        rst_y_value[4 * WIDTH - 1: 3 * WIDTH] = 0;
-        rst_y_value[3 * WIDTH - 1: 2 * WIDTH] = 1;
-        rst_y_value[2 * WIDTH - 1: 1 * WIDTH] = 2;
-        rst_y_value[1 * WIDTH - 1: 0 * WIDTH] = 3;
+        rst_y_value = 0;
+        rst_x_value[4 * WIDTH - 1: 3 * WIDTH] = 3;
+        rst_x_value[3 * WIDTH - 1: 2 * WIDTH] = 4;
+        rst_x_value[2 * WIDTH - 1: 1 * WIDTH] = 5;
+        rst_x_value[1 * WIDTH - 1: 0 * WIDTH] = 6;
     end
     else begin
         rst_x_value = 0;
         rst_y_value = 0;
     end
 end
+
+wire load_to_reg;
+assign load_to_reg = rst || is_load_fig;
 
 generate
     genvar i;
@@ -70,7 +64,7 @@ generate
         reset_register #(.WIDTH(WIDTH))
             _border(.load(write_reg), 
                  .clk(clk), .rst(rst), 
-                 .rst_value(6),
+                 .rst_value(8'b00000110),
                  .in(new_border[WIDTH*(MEM_WIDTH-i)-1:WIDTH*(MEM_WIDTH-i-1)]), 
                  .out(border[WIDTH*(MEM_WIDTH-i)-1:WIDTH*(MEM_WIDTH-i-1)]));
     end

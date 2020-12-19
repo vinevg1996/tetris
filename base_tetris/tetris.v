@@ -16,7 +16,7 @@ wire [4 * WIDTH - 1:0] rho_x, rho_y, new_rho_x, new_rho_y;
 
 // control
 wire is_load_PC, write_reg, write_mem, is_move;
-wire is_load_fig, is_touch;
+wire is_load_fig, is_touch, is_reduce, is_lose, is_wait;
 
 PC _PC(.load(is_load_PC), .clk(clk), .rst(rst), 
        .in(new_instr_addr), .out(instr_addr));
@@ -26,7 +26,10 @@ adder #(.WIDTH(WIDTH))
                     .x(instr_addr), .y(8'b1), .out(new_instr_addr));
 
 instructions #(.WIDTH(WIDTH), .INSTRACTION_NUMBERS(INSTRACTION_NUMBERS)) 
-              _inst(.rst(rst), .curr_command(instr_addr), 
+              _inst(.rst(rst), .clk(clk),
+                    .curr_command(instr_addr), 
+                    .is_touch(is_touch), 
+                    .is_lose(is_lose),
                     .out_data(instr));
 
 assign action = instr[2*WIDTH-1:WIDTH];
@@ -51,7 +54,7 @@ alu #(.WIDTH(WIDTH), .MEM_WIDTH(MEM_WIDTH), .MEM_HEIGHT(MEM_HEIGHT))
         .new_border(new_border), .new_rho_x(new_rho_x),
         .new_rho_y(new_rho_y),
         // control
-        .is_move(is_move)
+        .is_move(is_move), .is_reduce(is_reduce)
         );
 
 memory #(.WIDTH(WIDTH), .MEM_WIDTH(MEM_WIDTH), .MEM_HEIGHT(MEM_HEIGHT)) 
@@ -72,7 +75,9 @@ control_fsm #(.WIDTH(WIDTH), .MEM_WIDTH(MEM_WIDTH),
          // output
          .write_reg(write_reg), .write_mem(write_mem),
          .is_move(is_move), .is_load_PC(is_load_PC),
-         .is_touch(is_touch), .is_load_fig(is_load_fig)
+         .is_touch(is_touch), .is_load_fig(is_load_fig),
+         .is_reduce(is_reduce), 
+         .is_lose(is_lose), .is_wait(is_wait)
          );
 
 endmodule

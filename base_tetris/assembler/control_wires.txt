@@ -1,0 +1,18 @@
+1) is_move: the figure can be moved
+
+2) is_touch: all y_coord of I touch the border
+	or two y_coord of Q touch the border
+
+3) is_reduce: the new_border = border + 1
+
+4) is_lose = is_touch && !is_move
+
+5) is_load_fig: action = load
+
+6) is_write_reg = !is_wait && !is_lose
+
+7) is_write_mem = !is_wait && !is_lose
+
+8) is_load_pc = !is_wait && !is_lose
+
+9) is_wait = is_reduce

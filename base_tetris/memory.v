@@ -4,8 +4,11 @@ module memory(// input
               clk, rst, write_mem
               );
     parameter integer MEM_WIDTH = 10;
-    parameter integer MEM_HEIGHT = 20;
+    //parameter integer MEM_HEIGHT = 20;
+    parameter integer MEM_HEIGHT = 6;
     parameter integer WIDTH = 8;
+    parameter integer W = 1;
+    localparam SIZE = MEM_WIDTH*MEM_HEIGHT;
     
     // input
     input [MEM_WIDTH * WIDTH - 1:0] new_border;
@@ -14,21 +17,52 @@ module memory(// input
     input write_mem;
     input clk, rst;
 
-wire [MEM_WIDTH * WIDTH - 1:0] mem_border;
+//wire is_colored[0:MEM_WIDTH][0:MEM_HEIGHT];
+//wire [SIZE-1:0] is_colored;
+reg [SIZE-1:0] is_colored;
 
+genvar i, j;
 generate
-    genvar i;
-    for(i = 0; i < MEM_WIDTH; i = i + 1)
-    begin : assign_block
-        reset_register 
-            _reg(.load(write_mem), 
-                 .clk(clk), .rst(rst), 
-                 .rst_value(8'b0),
-                 .in(new_border[WIDTH*(MEM_WIDTH-i)-1:WIDTH*(MEM_WIDTH-i-1)]), 
-                 .out(mem_border[WIDTH*(MEM_WIDTH-i)-1:WIDTH*(MEM_WIDTH-i-1)]));
+    for(i = 0; i < MEM_WIDTH; i = i + 1) begin 
+        for(j = 0; j < MEM_HEIGHT; j = j + 1) begin
+          always @(*) begin
+            // is_colored[i][j] = is_colored[(60-(10*j+i))-1:(60-(10*j+i)-1)]
+            // is_colored[60] - (0, 0)
+            // is_colored[51] - (9, 0)
+            // is_colored[0] - (9, 5)
+            is_colored[(60-(10*j+i))-1:(60-(10*j+i)-1)] = 
+                (i == new_rho_x[8*(4-0)-1:8*(4-0-1)] && j == new_rho_y[8*(4-0)-1:8*(4-0-1)]) ||
+                (i == new_rho_x[8*(4-1)-1:8*(4-1-1)] && j == new_rho_y[8*(4-1)-1:8*(4-1-1)]) ||
+                (i == new_rho_x[8*(4-2)-1:8*(4-2-1)] && j == new_rho_y[8*(4-2)-1:8*(4-2-1)]) ||
+                (i == new_rho_x[8*(4-3)-1:8*(4-3-1)] && j == new_rho_y[8*(4-3)-1:8*(4-3-1)]);
+          end
+        end
     end
+  
 endgenerate
 
+
+/*
+generate
+    integer i, j;
+    for(i = 0; i < MEM_WIDTH; i = i + 1)
+        //genvar j;
+        for(j = 0; j < MEM_HEIGHT; j = j + 1)
+        begin : assign_block
+        reg is_colored = (j >= new_border[(10-i)-1:(10-i-1)]) ||
+                         (i == new_rho_x[0] && j == new_rho_y[0]) ||
+                         (i == new_rho_x[1] && j == new_rho_y[1]) ||
+                         (i == new_rho_x[2] && j == new_rho_y[2]) ||
+                         (i == new_rho_x[3] && j == new_rho_y[3]);
+        reset_register #(.WIDTH(1)) 
+        _mem_reg(.load(write_mem), 
+                 .clk(clk), .rst(rst), 
+                 .rst_value(1'b0),
+                 .in(is_colored), 
+                 .out(mem[(SIZE-(10*j+i))-1:(60-(10*j+i)-1)]));
+        end
+endgenerate
+*/
 /*
 wire mem_arr[0:MEM_WIDTH-1][0:MEM_HEIGHT-1];
 

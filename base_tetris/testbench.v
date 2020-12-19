@@ -24,20 +24,20 @@ module testbench;
         $dumpfile("dump.vcd");
         $dumpvars(0, testbench);
 
-$display("time, clk, addr, x_0, x_1, x_2, x_3, y_0, y_1, y_2, y_3, act, move");
-$monitor("%1d     %1d    %1d     %1d     %1d    %1d    %1d    %1d    %1d    %1d     %1d     %1d     %1d",
+$display("time, clk, addr, x_0, y_0, act, move, col[0], col[4], col[5], fig, new_rho_x[0], new_rho_y[0]");
+$monitor("%1d     %1d    %1d     %1d     %1d    %1d    %1d    %1d    %1d    %1d    %1d    %1d    %1d",
          $time, clk,
          _tetris.instr_addr,
          _tetris.rho_x[4 * WIDTH - 1: 3 * WIDTH],
-         _tetris.rho_x[3 * WIDTH - 1: 2 * WIDTH],
-         _tetris.rho_x[2 * WIDTH - 1: 1 * WIDTH],
-         _tetris.rho_x[1 * WIDTH - 1: 0 * WIDTH],
          _tetris.rho_y[4 * WIDTH - 1: 3 * WIDTH],
-         _tetris.rho_y[3 * WIDTH - 1: 2 * WIDTH],
-         _tetris.rho_y[2 * WIDTH - 1: 1 * WIDTH],
-         _tetris.rho_y[1 * WIDTH - 1: 0 * WIDTH],
          _tetris.action,
-         _tetris.is_move
+         _tetris.is_move,
+         _tetris._mem.is_colored[59:59],
+         _tetris._mem.is_colored[46:46],
+         _tetris._mem.is_colored[45:45],
+         _tetris.figure,
+         _tetris.new_rho_x[8*(4-0)-1:8*(4-0-1)],
+         _tetris.new_rho_y[8*(4-0)-1:8*(4-0-1)]
          );
         // simulation
         clk = 1;
